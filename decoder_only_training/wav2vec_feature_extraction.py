@@ -24,7 +24,7 @@ def extract_features_to_files(model, feature_extractor, dataset_split, batch_siz
 
         assert len(sentence_batch) == len(audio_batch) == len(out.last_hidden_state)
         for sent, audio, hs in zip(sentence_batch, audio_batch, out.last_hidden_state.bfloat16().cpu()):
-            file_name = audio["path"].split("/")[-1]
+            file_name = f"{Path(audio['path']).stem}.pt"
             torch.save(
                 # .clone() is necessary: https://github.com/pytorch/pytorch/issues/1995
                 {"sentence": sent, "wave2vec_features": hs.clone()},
