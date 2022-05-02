@@ -3,7 +3,7 @@ from transformers import SpeechEncoderDecoderModel
 from torch import nn
 from torch.nn import CrossEntropyLoss
 from transformers.models.encoder_decoder.modeling_encoder_decoder import shift_tokens_right
-from transformers.modeling_outputs import Seq2SeqLMOutput
+from transformers.modeling_outputs import BaseModelOutput, Seq2SeqLMOutput
 from transformers.utils import logging
 
 logger = logging.get_logger(__name__)
@@ -47,15 +47,16 @@ class Wav2VecGPT2Model(SpeechEncoderDecoderModel):
             argument[len("decoder_") :]: value for argument, value in kwargs.items() if argument.startswith("decoder_")
         }
 
-        if encoder_outputs is None and inputs is None:
-            if input_values is not None and input_features is not None:
-                raise ValueError("You cannot specify both input_values and input_features at the same time")
-            elif input_values is not None:
-                inputs = input_values
-            elif input_features is not None:
-                inputs = input_features
-            else:
-                raise ValueError("You have to specify either input_values or input_features")
+        if encoder_outputs is None:
+            if inputs is None:
+                if input_values is not None and input_features is not None:
+                    raise ValueError("You cannot specify both input_values and input_features at the same time")
+                elif input_values is not None:
+                    inputs = input_values
+                elif input_features is not None:
+                    inputs = input_features
+                else:
+                    raise ValueError("You have to specify either input_values or input_features")
 
             encoder_outputs = self.encoder(
                 inputs,
@@ -65,6 +66,8 @@ class Wav2VecGPT2Model(SpeechEncoderDecoderModel):
                 return_dict=return_dict,
                 **kwargs_encoder,
             )
+        elif isinstance(encoder_outputs, tuple):
+            encoder_outputs = BaseModelOutput(*encoder_outputs)
 
         encoder_hidden_states = encoder_outputs[0]
 
