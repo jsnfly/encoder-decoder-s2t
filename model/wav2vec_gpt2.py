@@ -140,7 +140,7 @@ class Wav2VecGPT2Model(SpeechEncoderDecoderModel):
             decoder_hidden_states=decoder_outputs.hidden_states,
             decoder_attentions=decoder_outputs.attentions,
             cross_attentions=decoder_outputs.cross_attentions,
-            encoder_last_hidden_state=encoder_outputs[0],
-            encoder_hidden_states=encoder_outputs[1] if len(encoder_outputs) > 1 else None,
-            encoder_attentions=encoder_outputs[2] if len(encoder_outputs) > 1 else None
+            encoder_last_hidden_state=encoder_hidden_states,
+            encoder_hidden_states=encoder_outputs.hidden_states,
+            encoder_attentions=encoder_outputs.attentions,
         )
